@@ -1,0 +1,28 @@
+# credentials - never commit these
+cookies.txt
+.creds/
+clip-uploader/.creds/
+
+# downloaded / rendered media
+*.mp4
+*.mkv
+*.webm
+*.ass
+*.srt
+*.part
+
+# tooling
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# archives and logs
+*.zip
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,6 @@
+.creds/
+node_modules/
+samples/*.mp4
+*.zip
+*.log
+.DS_Store

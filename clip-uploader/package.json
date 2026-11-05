@@ -1,0 +1,17 @@
+{
+  "name": "clip-uploader",
+  "version": "0.2.1",
+  "private": true,
+  "type": "module",
+  "description": "Publish one finished clip to YouTube, Instagram, Facebook and TikTok from a single command.",
+  "bin": {
+    "clip-uploader": "./upload.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "doctor": "node upload.mjs doctor",
+    "dry": "node upload.mjs upload --dry-run"
+  }
+}

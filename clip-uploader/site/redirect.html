@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Authorization complete</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    padding: 2.5rem 1.25rem;
+    background: #0a0a0b; color: #e8e8ea;
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  main { width: 100%; max-width: 40rem; }
+  .ring { width: 48px; height: 48px; border: 3px solid #ff0033; border-radius: 50%; margin-bottom: 1.4rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 .5rem; letter-spacing: -.02em; }
+  p { color: #b9b9c1; margin: .5rem 0; }
+  .code {
+    margin: 1.5rem 0; padding: 1.1rem 1.2rem;
+    background: #131316; border: 1px solid #2a2a30; border-radius: 12px;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 1.02rem; line-height: 1.5; word-break: break-all; color: #fff;
+    user-select: all; -webkit-user-select: all;
+  }
+  button {
+    appearance: none; border: 0; border-radius: 9px; cursor: pointer;
+    background: #ff0033; color: #fff; font: inherit; font-weight: 600;
+    padding: .7rem 1.3rem; transition: background .15s;
+  }
+  button:hover { background: #e6002e; }
+  button.done { background: #1f7a44; }
+  .muted { color: #7f7f89; font-size: .88rem; }
+  .err { color: #ff8095; }
+  ol { color: #b9b9c1; padding-left: 1.15rem; }
+  li { margin: .35rem 0; }
+  code { color: #fff; background: #1b1b20; padding: .1rem .35rem; border-radius: 4px; }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <div class="ring" aria-hidden="true"></div>
+  <h1 id="title">Waiting for a code...</h1>
+
+  <div id="ok" class="hide">
+    <p>Copy this authorization code and paste it into your terminal:</p>
+    <div class="code" id="code"></div>
+    <button id="copy">Copy code</button>
+    <ol>
+      <li>Click <strong>Copy code</strong> above.</li>
+      <li>Return to your terminal window.</li>
+      <li>Paste it at the <code>Redirect URL (or just the code):</code> prompt and press Enter.</li>
+    </ol>
+    <p class="muted">This code is single-use and expires in minutes. It is as sensitive as a password — do not share the URL.</p>
+  </div>
+
+  <div id="bad" class="hide">
+    <p class="err" id="badmsg"></p>
+    <p class="muted">The provider refused the authorization. Check the terminal for details.</p>
+  </div>
+</main>
+
+<script>
+  (function () {
+    var q = new URLSearchParams(window.location.search);
+    var code = q.get('code');
+    var err = q.get('error');
+    var desc = q.get('error_description');
+
+    var t = document.getElementById('title');
+    var ok = document.getElementById('ok');
+    var bad = document.getElementById('bad');
+    var badmsg = document.getElementById('badmsg');
+    var box = document.getElementById('code');
+
+    if (code) {
+      t.textContent = 'Authorization complete';
+      box.textContent = code;
+      ok.classList.remove('hide');
+
+      var btn = document.getElementById('copy');
+      btn.addEventListener('click', function () {
+        var done = function () {
+          btn.textContent = 'Copied';
+          btn.classList.add('done');
+          setTimeout(function () { btn.textContent = 'Copy code'; btn.classList.remove('done'); }, 2000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(done, function () { selectAll(); });
+        } else {
+          selectAll();
+        }
+      });
+
+      function selectAll() {
+        var r = document.createRange();
+        r.selectNodeContents(box);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+      }
+
+      // Deliberately leave the code in the address bar: the terminal accepts
+      // either the pasted code or the whole URL, and stripping it would make
+      // "copy the address bar" silently fail.
+    } else if (err) {
+      t.textContent = 'Authorization failed';
+      badmsg.textContent = desc || err;
+      bad.classList.remove('hide');
+    } else {
+      t.textContent = 'Nothing here';
+      badmsg.textContent = 'This page is the OAuth callback endpoint. It only shows something after a provider redirects to it.';
+      bad.classList.remove('hide');
+    }
+  })();
+</script>
+</body>
+</html>
